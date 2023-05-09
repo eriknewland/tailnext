@@ -1,5 +1,7 @@
 # Tailnext
 
+## Use Node v19.1.0
+
 **Tailnext** is a free and open-source template to make your website using **[NextJS](https://nextjs.org/) + [Tailwind CSS](https://tailwindcss.com/)**. Ready to start a new project and designed taking into account best practices.
 
 ❗ This is a work in progress. We are using **Next.js 13** (**React 18**) with the new [**app directory**](https://beta.nextjs.org/docs/app-directory-roadmap) still in experimental mode.
