@@ -1,0 +1,919 @@
+# React To-Do List App with Vite
+
+This guide will walk you through setting up a React app with Vite, creating a to-do list, adding CRUD functionality, styling the app with CSS, and refactoring the CRUD functionality to use the `json-server` package to simulate a database.
+
+## Prerequisites
+
+- Node.js installed on your computer. You can download it from [here](https://nodejs.org/en/download/).
+
+- A very basic understanding of HTML (i.e. know what a <button>Button</button> is). I recommend checking out some basics at [W3-Schools](https://www.w3schools.com/html/)
+
+# Table of Contents
+
+1. [React To-Do List App with Vite](#react-to-do-list-app-with-vite)
+2. [Prerequisites](#prerequisites)
+3. [Setting up a React app with Vite](#1-setting-up-a-react-app-with-vite)
+   - [3.1 Create a new React project](#11-open-your-terminal-or-command-prompt-and-run-the-following-command-to-create-a-new-react-project-using-vite)
+   - [3.2 Change to the project directory](#12-change-to-the-newly-created-project-directory)
+   - [3.3 Install dependencies](#13-install-the-necessary-dependencies)
+   - [3.4 Start the development server](#14-start-the-development-server)
+4. [Setting up a to-do list](#2-setting-up-a-to-do-list)
+   - [4.1 Import necessary modules](#21-first-we-import-the-necessary-modules-from-the-react-library)
+   - [4.2 Create a functional component](#22-next-we-create-a-functional-component-called-app)
+   - [4.3 Create a state variable](#23-inside-the-app-component-we-create-a-state-variable-called-todos-using-the-usestate-hook)
+   - [4.4 Define the structure of the app](#24-in-the-return-statement-of-the-app-component-we-define-the-structure-of-our-app-using-jsx)
+   - [4.5 Export the App component](#25-finally-we-export-the-app-component-so-that-it-can-be-used-in-other-parts-of-our-app)
+5. [Adding CRUD functionality](#3-adding-crud-functionality)
+   - [5.1 Create a new to-do](#31-create-a-new-to-do)
+   - [5.2 Display the to-do list](#32-display-the-to-do-list)
+   - [5.3 Edit and delete a to-do](#33-edit-and-delete-a-to-do)
+6. [Add CSS styles](#add-css-styles)
+   - [6.1 Update `src/index.css` file](#41-open-the-srcindexcss-file-in-your-code-editor)
+7. [Persist Data from CRUD functionality ](#5-refactor-crud-functionality-to-use-the-json-server-package)
+    - [7.1 Install `json-server` as a development dependency](#51-install-json-server-as-a-development-dependency)
+    - [7.2 Create a new file named `db.json` in the root of your project](#52-create-a-new-file-named-dbjson-in-the-root-of-your-project)
+    - [7.3 Add a script to `package.json` to start the `json-server`](#53-add-a-script-to-packagejson-to-start-the-json-server)
+    - [7.4 Start the JSON server](#54-start-the-json-server)
+    - [7.5 Install and use the `axios` library for HTTP requests](#55-install-and-use-the-axios-library-for-http-requests)
+8. [Refactoring our Application with Props and Components](#6-refactoring-our-application)
+9. [Understanding Props](#7-understanding-props)
+    - [9.1 TodoForm](#71-todoform)
+    - [9.2 TodoList](#72-todolist)
+    - [9.3 TodoItem](#73-todoitem)
+10. [Next Steps](#8-next-steps)
+11. [References](#quick-references)
+
+## 1. Setting up a React app with Vite
+
+### 1.1 Open your terminal or command prompt and run the following command to create a new React project using Vite:
+
+```bash
+npx create-vite my-todo-app --template react
+```
+
+### 1.2 Change to the newly created project directory:
+
+```bash
+cd my-todo-app
+```
+
+### 1.3 Install the necessary dependencies:
+
+```bash
+npm install
+```
+
+### 1.4. Start the development server:
+
+```bash
+npm run dev
+```
+
+Now, open your browser and go to the localhost link displayed in your terminal. You should see the default Vite React app.
+
+It should look something like this:
+
+![Vite-Boilerplate](https://github.com/eriknewland/codepen-gpt/assets/114263701/afc34d92-2dcd-4898-bf08-8f55d47352a1)
+
+
+If you navigate to `src/App`, you will see the following boilerplate code:
+```jsx
+import { useState } from 'react'
+import reactLogo from './assets/react.svg'
+import viteLogo from '/vite.svg'
+import './App.css'
+
+function App() {
+  const [count, setCount] = useState(0)
+
+  return (
+    <>
+      <div>
+        <a href="https://vitejs.dev" target="_blank">
+          <img src={viteLogo} className="logo" alt="Vite logo" />
+        </a>
+        <a href="https://react.dev" target="_blank">
+          <img src={reactLogo} className="logo react" alt="React logo" />
+        </a>
+      </div>
+      <h1>Vite + React</h1>
+      <div className="card">
+        <button onClick={() => setCount((count) => count + 1)}>
+          count is {count}
+        </button>
+        <p>
+          Edit <code>src/App.jsx</code> and save to test HMR
+        </p>
+      </div>
+      <p className="read-the-docs">
+        Click on the Vite and React logos to learn more
+      </p>
+    </>
+  )
+}
+
+export default App
+```
+
+This code is the default code generated by the `create-vite-app` command when creating a new React project using Vite as the build tool.
+
+- The first line imports the `useState` hook from the `react` library. This hook allows us to add state to our functional components.
+
+- The next two lines import the React and Vite logos as SVG files from the `assets` folder and the root directory respectively.
+
+- The `App` function is the main component of our application. It returns a JSX expression that defines the structure and content of our app.
+
+- Inside the `App` function, we use the `useState` hook to create a state variable called `count` and a function called `setCount` that updates the value of `count`. The initial value of `count` is set to `0`.
+
+- The JSX expression returned by the `App` function contains a `div` (generic container) element that contains two `a` (link) elements, each with an `img` (image) element inside. These `img` elements display the React and Vite logos respectively.
+
+- Next, we have an `h1` (biggest header) element that displays the text "Vite + React".
+
+- The `div` (generic container) element with the class `card` contains a `button` element with an `onClick` event listener that calls the `setCount` function to increment the value of `count` by 1. The text inside the `button` element displays the current value of `count`.
+
+- Classes like `card` allow us to select this element, or perhaps all card elements, and apply styles, event listeners, and event handlers. This relationship between HTML and JS is fundamental to understanding web design and React.
+
+- Note: The most common differences between HTML and JSX (the syntax used in React) are the use of `className` instead of `class` for defining CSS classes, and the use of curly braces `{}` to embed JavaScript expressions within JSX elements. Additionally, in JSX, all tags must be closed (<Example/>), even if they don't have any content.
+
+- Below the `button` element, we have a `p` (paragraph) element that displays the text "Edit src/App.jsx and save to test HMR".
+
+- Finally, we have a `p` element with the class `read-the-docs` that displays the text "Click on the Vite and React logos to learn more".
+
+- The `export default App` statement at the end of the file exports the `App` function as the default export of the module, which can be imported and used in other parts of the application.
+
+- Feel free to explore the Vite or React documentation by clicking on their respective logos.
+
+## 2. Setting up a to-do list
+
+Let's get started. We are setting up the basic structure of our to-do list app. Let's break down the code and explain it in more detail.
+
+Navigate to `src/index.css` and `src/App.css` and erase all the code. We'll be filling in our own styles shortly.
+
+### 2.1 First, we import the necessary modules from the React library.
+ We import `React` and the `useState` hook, which allows us to manage the state of our app.
+
+```jsx
+import React, { useState } from "react";
+```
+
+### 2.2 Next, we create a functional component called `App`.
+This component will be the main component of our app and will contain the to-do list and related functionality.
+
+```jsx
+function App() {
+  // ...
+}
+```
+
+### 2.3 Inside the `App` component, we create a state variable called `todos` using the `useState` hook.
+This variable will store the list of to-dos. The initial value of `todos` is an empty array, as we don't have any to-dos yet.
+
+In React, state refers to the data that is used to manage the dynamic behavior of a component. It represents the values that can change over time and affect the rendering of the component. State is typically used to store user input, server responses, or other dynamic data that can be modified by the user or the application.
+
+The useState hook is a built-in function in React that allows functional components to have state. It allows you to declare a state variable and provide an initial value for it. The hook returns an array with two values: the current state value and a function to update the state value. Whenever the state is updated, React will re-render the component with the new state value.
+
+```jsx
+const [todos, setTodos] = useState([]);
+```
+
+### 2.4 In the `return` statement of the `App` component, we define the structure of our app using JSX.
+  JSX is a syntax extension for JavaScript that allows us to write HTML-like code within our JavaScript code. In this case, we create a `div` containing an `h1` element with the text "To-Do List". We also add a comment where the to-do list will be displayed later.
+
+```jsx
+return (
+  <div>
+    <h1>To-Do List</h1>
+    {/* To-Do list will be displayed here */}
+    {/* Also how we comment stuff in React */}
+  </div>
+);
+```
+
+### 2.5 Finally, we export the `App` component so that it can be used in other parts of our app.
+
+```jsx
+export default App;
+```
+
+Now, let's create a placeholder to-do list. Replace the content of `src/App.jsx` with the following code:
+
+```jsx
+import React, { useState } from "react";
+import './App.css'
+
+function App() {
+  const [todos, setTodos] = useState([
+    { id: 1, text: "Learn React", completed: false },
+    { id: 2, text: "Build a to-do app", completed: false },
+    { id: 3, text: "Celebrate!", completed: false },
+  ]);
+
+  return (
+    <div>
+      <h1>To-Do List</h1>
+      <ul>
+        {todos.map((todo) => (
+          <li key={todo.id}>{todo.text}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default App;
+```
+
+With this hard-coded to-do list, we initialize the `todos` state variable with an array of three to-do items. Each item is an object with an `id`, `text`, and `completed` property. We also add a `ul` element to display the to-do list. Inside the `ul` element, we use the `map` function to iterate over the `todos` array and create an `li` element for each to-do item. The `key` attribute is used to uniquely identify each `li` element, and we display the `text` property of each to-do item.
+
+We'll also go ahead and remove all the CSS from `App.css` and replace it with the following:
+```css
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+div {
+  text-align: center;
+}
+```
+
+This will center the `div` element containing the to-do list horizontally and vertically on the page. The `text-align: center` property centers the text inside the `div` element. The `height: 100vh` property sets the height of the `body` element to the full height of the viewport, which allows us to center the `div` element vertically. The `display: flex` property on the `body` element and `justify-content: center` and `align-items: center` properties center the `div` element horizontally.
+
+Your screen should look something like this:
+
+![hard-coded to-do list](https://github.com/eriknewland/codepen-gpt/assets/114263701/a983f186-5328-4809-bfae-adf2fb161522)
+
+## 3. Adding CRUD functionality
+
+CRUD refers to the four basic operations that can be performed on data: Create, Read, Update, and Delete. React components can be used to implement these operations by rendering forms for creating and updating data, displaying data for reading, and providing buttons or links for deleting data.
+
+### 3.1. Create a new to-do
+
+In this step, we will create a new to-do item and add it to our list.
+
+1. Add the following code inside the `App` component, right below the `<h1>` tag:
+
+```jsx
+const [input, setInput] = useState("");
+
+const handleInputChange = (e) => {
+  setInput(e.target.value);
+};
+```
+
+Here, we create a new state variable `input` to store the user's input for a new to-do item. We also create a function `handleInputChange` that updates the `input` state when the user types in the input field.
+
+Next, we will create a function to add a new to-do item to our list.
+
+```jsx
+const addTodo = () => {
+  if (input.trim()) {
+    setTodos([...todos, { id: Date.now(), text: input.trim(), completed: false }]);
+    setInput("");
+  }
+};
+```
+
+The `addTodo` function checks if the input is not empty (after trimming whitespace). If it's not empty, it creates a new to-do object with a unique `id`, the input text, and a `completed` status set to `false`. Then, it adds the new to-do to the `todos` state and clears the input field.
+
+Finally, we will add an input field and a button to our JSX:
+
+```jsx
+return (
+  <div>
+    <h1>To-Do List</h1>
+    <input
+      type="text"
+      placeholder="Enter a new to-do"
+      value={input}
+      onChange={handleInputChange}
+    />
+    <button onClick={addTodo}>Add</button>
+    {/* To-Do list will be displayed here */}
+  </div>
+);
+```
+
+The input field has an `onChange` event listener that calls the `handleInputChange` function to update the `input` state. The "Add" button has an `onClick` event listener that calls the `addTodo` function to add a new to-do item.
+
+### 3.2. Display the to-do list
+
+In this step, we will display the to-do list items.
+
+1. Replace the comment `{/* To-Do list will be displayed here */}` with the following code:
+
+```jsx
+<ul>
+  {todos.map((todo) => (
+    <li key={todo.id}>
+      {todo.text}
+      {/* Edit and delete buttons will be added here */}
+    </li>
+  ))}
+</ul>
+```
+
+Here, we use the `map` function to loop through the `todos` state and create an unordered list (`<ul>`) of list items (`<li>`). Each list item displays the text of the to-do item and has a unique `key` attribute set to the `id` of the to-do.
+
+### 3.3. Edit and delete a to-do
+
+In this step, we will add the functionality to edit and delete to-do items.
+
+1. Add the following code inside the `App` component:
+
+```jsx
+const deleteTodo = (id) => {
+  setTodos(todos.filter((todo) => todo.id !== id));
+};
+
+const editTodo = (id, newText) => {
+  setTodos(
+    todos.map((todo) => (todo.id === id ? { ...todo, text: newText } : todo))
+  );
+};
+```
+
+The `deleteTodo` function takes an `id` as an argument and filters out the to-do item with that `id` from the `todos` state. The `editTodo` function takes an `id` and `newText` as arguments and updates the text of the to-do item with that `id` in the `todos` state.
+
+2. Replace the comment `{/* Edit and delete buttons will be added here */}` with the following code:
+
+```jsx
+<button onClick={() => deleteTodo(todo.id)}>Delete</button>
+<button
+  onClick={() => {
+    const newText = prompt("Edit your to-do:", todo.text);
+    if (newText) {
+      editTodo(todo.id, newText);
+    }
+  }}
+>
+  Edit
+</button>
+```
+
+Here, we add two buttons for each to-do item: "Delete" and "Edit". The "Delete" button has an `onClick` event listener that calls the `deleteTodo` function with the `id` of the to-do item. The "Edit" button has an `onClick` event listener that opens a prompt for the user to edit the to-do item's text and calls the `editTodo` function with the `id` and the new text.
+
+Now let's put it all together!
+
+```jsx
+import React, { useState } from "react";
+import './App.css'
+
+function App() {
+  // State to store the list of to-do items
+  const [todos, setTodos] = useState([]);
+
+  // State to store the user's input for a new to-do item
+  const [input, setInput] = useState("");
+
+  // Function to handle input changes and update the input state
+  const handleInputChange = (e) => {
+    setInput(e.target.value);
+  };
+
+  // Function to add a new to-do item to the list
+  const addTodo = () => {
+    if (input.trim()) {
+      setTodos([...todos, { id: Date.now(), text: input.trim(), completed: false }]);
+      setInput("");
+    }
+  };
+
+  // Function to delete a to-do item from the list
+  const deleteTodo = (id) => {
+    setTodos(todos.filter((todo) => todo.id !== id));
+  };
+
+  // Function to edit the text of a to-do item in the list
+  const editTodo = (id, newText) => {
+    setTodos(
+      todos.map((todo) => (todo.id === id ? { ...todo, text: newText } : todo))
+    );
+  };
+
+  return (
+    <div>
+      <h1>To-Do List</h1>
+      <input
+        type="text"
+        placeholder="Enter a new to-do"
+        value={input}
+        onChange={handleInputChange}
+      />
+      <button onClick={addTodo}>Add</button>
+      <ul>
+        {todos.map((todo) => (
+          <li key={todo.id}>
+            {todo.text}
+            <button onClick={() => deleteTodo(todo.id)}>Delete</button>
+            <button
+              onClick={() => {
+                const newText = prompt("Edit your to-do:", todo.text);
+                if (newText) {
+                  editTodo(todo.id, newText);
+                }
+              }}
+            >
+              Edit
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default App;
+```
+
+And this is what your to-do list should look like now
+
+![Partially Complete to-do List](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMzdhNzZmNDY1YWEyZGMwYmI4ODA0N2VlMTYyNDgyODFmODEyMWRmOCZlcD12MV9pbnRlcm5hbF9naWZzX2dpZklkJmN0PWc/UCqhtaO2yrTNvmtHEI/giphy.gif)
+
+## 4. Add CSS styles
+
+Now it's time to add some CSS styles to make our to-do list app look better. CSS (Cascading Style Sheets) is a language used to describe the look and formatting of a document written in HTML.
+
+### 4.1 Open the `src/index.css` file in your code editor.
+This file contains the global CSS styles for our app. Replace the existing content (if you didn't remove it earlier) with the following code:
+
+```css
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f0f0f0;
+  padding: 20px;
+}
+
+h1 {
+  text-align: center;
+}
+
+input {
+  padding: 5px;
+  font-size: 16px;
+  width: 300px;
+}
+
+button {
+  padding: 5px 10px;
+  font-size: 16px;
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
+  background-color: #fff;
+  padding: 10px;
+  margin-bottom: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+li button {
+  margin-left: 5px;
+}
+```
+
+Here's a brief explanation of the CSS rules we've added:
+
+- `body`: We set the font family to Arial, change the background color to a light gray, and add some padding around the content.
+- `h1`: We center the text inside the `<h1>` element.
+- `input`: We add some padding, set the font size, and set a fixed width for the input field.
+- `button`: We add padding, set the font size, add some margin to the left, and change the cursor to a pointer when hovering over the button.
+- `ul`: We remove the default list style (bullet points) and padding.
+- `li`: We set the background color to white, add padding, set a margin at the bottom, and use flexbox to align the content.
+- `li button`: We add some margin to the left of the buttons inside the list items.
+
+Save the file, and the styles should be applied to your app automatically.
+
+Here's what everything should look like now:
+
+![To-Do List Broken CSS](https://github.com/eriknewland/codepen-gpt/assets/114263701/05e7cc91-773f-4776-83de-6de1ba7510ca)
+
+hmmm, this doesn't look quit right. Our alignment is off! Let's make some changes to `index.css`
+
+```css
+/* rest of styles... */
+/* Replace li button */
+li button {
+  margin-left: 5px;
+  margin-right: 0;
+}
+/* Add li button:last-child */
+li button:last-child {
+  margin-left: 5px;
+  margin-right: 0;
+}
+```
+
+The `:last-child` pseudo-class in CSS is used to target and style the last element among a group of sibling elements. It is a structural pseudo-class, meaning it depends on the position of the element in the document structure. Alternatively, we could have given that button a `className` and targeted via class selector (`.delete-button` for example) or wrapped the buttons in an additional `div` and styled them via flexbox. There are many ways to achieve the same outcome with CSS!
+
+Here's what your To-do List should look like at this point:
+
+![To-Do List Fixed CSS](https://github.com/eriknewland/codepen-gpt/assets/114263701/658bda01-1aa8-4dde-8816-7a3fdf9bfa97)
+
+## 5. Refactor CRUD functionality to use the `json-server` package
+
+In this section, we will replace the local state management of our to-do list with a simulated database using the `json-server` package. This will allow us to store and manage our to-do items more realistically and explore data persistence.
+
+### 5.1 First, we need to install `json-server` as a development dependency.
+This package will help us create a fake REST API for our to-do list app. A REST API is a way for web applications to communicate with each other using HTTP requests and responses, allowing for the exchange of data in a standardized format.
+
+Run the following command in your terminal:
+
+```bash
+npm install json-server --save-dev
+```
+
+
+### 5.2 Next, create a new file named `db.json` in the root of your project.
+This file will act as our database, storing the to-do items. Add the following content to the file:
+
+```json
+{
+  "todos": []
+}
+```
+
+This creates an empty array called `todos` that will store our to-do items.
+
+### 5.3 Now, we need to add a script to our `package.json` file to start the `json-server`.
+Open the `package.json` file and add the following script to the `scripts` section:
+
+```json
+"server": "json-server --watch db.json --port 5000"
+```
+
+This script tells `json-server` to watch the `db.json` file and run the server on port 5000.
+
+### 5.4 Start the JSON server by running the following command in your terminal:
+
+```bash
+npm run server
+```
+
+The server will now be running at `http://localhost:5000`, and you can access the to-do items at `http://localhost:5000/todos`.
+
+![json-server database](https://github.com/eriknewland/codepen-gpt/assets/114263701/207658d0-200f-44e8-a70b-2a63eafb8210)
+
+
+### 5.5 To make HTTP requests to our JSON server, we will use the `axios` library.
+Install `axios` by running the following command in your terminal:
+
+```bash
+npm install axios
+```
+
+Now that we have set up the `json-server` and installed `axios`, we can update our `App.jsx` file to use the simulated database for managing our to-do items.
+
+Next, let's refactor our `App.jsx` to use our json-server.
+
+## 6. Refactoring our Application
+
+In this section, we refactor our application to use `json-server` to simulate a database. Let's go through the code step by step.
+
+```jsx
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import './App.css'
+```
+
+Here, we import the necessary modules. `React` is the main library, `useState` and `useEffect` are hooks that allow us to manage state and side effects in our functional component. `axios` is a library for making HTTP requests. We also make sure to import our styles.
+
+```jsx
+function App() {
+  const [todos, setTodos] = useState([]);
+  const [input, setInput] = useState("");
+```
+
+We define two state variables: `todos` to store the list of to-dos and `input` to store the current input value.
+
+```jsx
+  useEffect(() => {
+    axios.get("http://localhost:5000/todos").then((response) => {
+      setTodos(response.data);
+    });
+  }, []);
+```
+
+`useEffect` is a hook that runs side effects, such as fetching data. In this case, we fetch the list of to-dos from the `json-server` when the component mounts. The empty array `[]` as the second argument ensures that this effect runs only once.
+
+```jsx
+  const handleInputChange = (e) => {
+    setInput(e.target.value);
+  };
+```
+
+`handleInputChange` is a function that updates the `input` state when the user types in the input field.
+
+```jsx
+  const addTodo = async () => {
+    if (input.trim()) {
+      const newTodo = {
+        text: input.trim(),
+        completed: false,
+      };
+      const response = await axios.post("http://localhost:5000/todos", newTodo);
+      setTodos([...todos, response.data]);
+      setInput("");
+    }
+  };
+```
+
+`addTodo` is an asynchronous function that creates a new to-do and sends a POST request to the `json-server`. If the request is successful, the new to-do is added to the `todos` state and the input field is cleared.
+
+```jsx
+  const deleteTodo = async (id) => {
+    await axios.delete(`http://localhost:5000/todos/${id}`);
+    setTodos(todos.filter((todo) => todo.id !== id));
+  };
+```
+
+`deleteTodo` is an asynchronous function that deletes a to-do by sending a DELETE request to the `json-server`. If the request is successful, the to-do is removed from the `todos` state.
+
+```jsx
+  const editTodo = async (id, newText) => {
+    const response = await axios.patch(`http://localhost:5000/todos/${id}`, {
+      text: newText,
+    });
+    setTodos(
+      todos.map((todo) => (todo.id === id ? { ...todo, text: newText } : todo))
+    );
+  };
+```
+
+`editTodo` is an asynchronous function that edits a to-do by sending a PATCH request to the `json-server`. If the request is successful, the to-do's text is updated in the `todos` state.
+
+```jsx
+  return (
+    <div>
+      <h1>To-Do List</h1>
+      <input
+        type="text"
+        placeholder="Enter a new to-do"
+        value={input}
+        onChange={handleInputChange}
+      />
+      <button onClick={addTodo}>Add</button>
+      <ul>
+        {todos.map((todo) => (
+          <li key={todo.id}>
+            {todo.text}
+            <button onClick={() => deleteTodo(todo.id)}>Delete</button>
+            <button
+              onClick={() => {
+                const newText = prompt("Edit your to-do:", todo.text);
+                if (newText) {
+                  editTodo(todo.id, newText);
+                }
+              }}
+            >
+              Edit
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default App;
+```
+
+Finally, we render the component. We display a list of to-dos with delete and edit buttons for each to-do. The `addTodo`, `deleteTodo`, and `editTodo` functions are attached to the corresponding buttons as event handlers.
+
+All together, here's what your `App.jsx` should look like
+
+```jsx
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import './App.css'
+
+function App() {
+  const [todos, setTodos] = useState([]);
+  const [input, setInput] = useState("");
+
+  useEffect(() => {
+    axios.get("http://localhost:5000/todos").then((response) => {
+      setTodos(response.data);
+    });
+  }, []);
+
+  const handleInputChange = (e) => {
+    setInput(e.target.value);
+  };
+
+  const addTodo = async () => {
+    if (input.trim()) {
+      const newTodo = {
+        text: input.trim(),
+        completed: false,
+      };
+      const response = await axios.post("http://localhost:5000/todos", newTodo);
+      setTodos([...todos, response.data]);
+      setInput("");
+    }
+  };
+
+  const deleteTodo = async (id) => {
+    await axios.delete(`http://localhost:5000/todos/${id}`);
+    setTodos(todos.filter((todo) => todo.id !== id));
+  };
+
+  const editTodo = async (id, newText) => {
+    const response = await axios.patch(`http://localhost:5000/todos/${id}`, {
+      text: newText,
+    });
+    setTodos(
+      todos.map((todo) => (todo.id === id ? { ...todo, text: newText } : todo))
+    );
+  };
+
+  return (
+    <div>
+      <h1>To-Do List</h1>
+      <input
+        type="text"
+        placeholder="Enter a new to-do"
+        value={input}
+        onChange={handleInputChange}
+      />
+      <button onClick={addTodo}>Add</button>
+      <ul>
+        {todos.map((todo) => (
+          <li key={todo.id}>
+            {todo.text}
+            <button onClick={() => deleteTodo(todo.id)}>Delete</button>
+            <button
+              onClick={() => {
+                const newText = prompt("Edit your to-do:", todo.text);
+                if (newText) {
+                  editTodo(todo.id, newText);
+                }
+              }}
+            >
+              Edit
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default App;
+```
+
+The to-do list app is functionally complete and uses `json-server` to simulate a database. Add, edit and delete some to-do items and notice how your db.json file changes in real-time. Refresh your browser and notice your data now persists.
+
+However, we still have a little more work to do. We need to break up this file into some sub-components to practice good software architecture. You can see that React files can quickly grow in length as we incorporate more components and functions. We can break up our components, though, and link them together through something called "props" data still flows seamlessly across the application.
+
+## 7. Understanding Props
+
+In React, props (short for "properties") are a way to pass data from a parent component to its child components. Props allow components to be more reusable and maintainable by separating concerns and making components more modular.
+
+In the provided example, we have refactored the `App` component into multiple components: `TodoForm`, `TodoList`, and `TodoItem`. Let's see how props are used to pass data and functions between these components.
+
+### 7.1 TodoForm
+
+`TodoForm` is responsible for rendering the input field and the "Add" button. It receives three props from its parent component, `App`:
+
+1. `input`: The current value of the input field.
+2. `handleInputChange`: A function that updates the `input` state in the `App` component when the input field value changes.
+3. `addTodo`: A function that adds a new to-do item to the list when the "Add" button is clicked.
+
+These props are passed from the `App` component to the `TodoForm` component like this:
+
+```jsx
+<TodoForm
+  input={input}
+  handleInputChange={handleInputChange}
+  addTodo={addTodo}
+/>
+```
+
+Inside the `TodoForm` component, these props are used as follows:
+
+```jsx
+function TodoForm({ input, handleInputChange, addTodo }) {
+  return (
+    <div>
+      <input
+        type="text"
+        placeholder="Enter a new to-do"
+        value={input}
+        onChange={handleInputChange}
+      />
+      <button onClick={addTodo}>Add</button>
+    </div>
+  );
+}
+```
+
+### 7.2 TodoList
+
+`TodoList` is responsible for rendering the list of to-do items. It receives three props from its parent component, `App`:
+
+1. `todos`: An array of to-do items.
+2. `deleteTodo`: A function that deletes a to-do item from the list.
+3. `editTodo`: A function that edits a to-do item in the list.
+
+These props are passed from the `App` component to the `TodoList` component like this:
+
+```jsx
+<TodoList todos={todos} deleteTodo={deleteTodo} editTodo={editTodo} />
+```
+
+Inside the `TodoList` component, these props are used to render a list of `TodoItem` components and pass the necessary data and functions to each `TodoItem`:
+
+```jsx
+function TodoList({ todos, deleteTodo, editTodo }) {
+  return (
+    <ul>
+      {todos.map((todo) => (
+        <TodoItem
+          key={todo.id}
+          todo={todo}
+          deleteTodo={deleteTodo}
+          editTodo={editTodo}
+        />
+      ))}
+    </ul>
+  );
+}
+```
+
+### 7.3 TodoItem
+
+`TodoItem` is responsible for rendering an individual to-do item along with the "Delete" and "Edit" buttons. It receives three props from its parent component, `TodoList`:
+
+1. `todo`: An object representing a single to-do item.
+2. `deleteTodo`: A function that deletes the current to-do item from the list.
+3. `editTodo`: A function that edits the current to-do item in the list.
+
+These props are passed from the `TodoList` component to the `TodoItem` component like this:
+
+```jsx
+<TodoItem
+  key={todo.id}
+  todo={todo}
+  deleteTodo={deleteTodo}
+  editTodo={editTodo}
+/>
+```
+
+Inside the `TodoItem` component, these props are used to render the to-do item and handle the "Delete" and "Edit" button clicks:
+
+```jsx
+function TodoItem({ todo, deleteTodo, editTodo }) {
+  return (
+    <li>
+      {todo.text}
+      <button onClick={() => deleteTodo(todo.id)}>Delete</button>
+      <button
+        onClick={() => {
+          const newText = prompt("Edit your to-do:", todo.text);
+          if (newText) {
+            editTodo(todo.id, newText);
+          }
+        }}
+      >
+        Edit
+      </button>
+    </li>
+  );
+}
+```
+
+In summary, props in React are used to pass data and functions between parent and child components, making components more reusable and modular. In our example, we have demonstrated how props are used to pass data and functions between the `App`, `TodoForm`, `TodoList`, and `TodoItem` components. While this may seem like over-engineering for such a small demonstration, this organization and separation of concerns is **critical** for larger codebases.
+
+## 8. Next Steps
+
+Congratulations🥳 You've just built your first full-stack Single Page React Application! I'm sure you have plenty of project ideas, but here are some logical next steps:
+
+- Learn more about HTML: There are numerous tags that constitute your React functions with different functionalities that cover a wide range of use-cases with minimal javascript
+
+- Learn more about CSS: Similar to HTML, there are many ways to style with minimal javascript. Open your chrome dev tools, click the elements tab, and edit the CSS of your to-do app (or any website) to get a better feeling for styling.
+
+- Learn more about React: This demo barely scratched the surface of the power and complexity of React. Explore the documentation, examples from the community, and the endless number of React packages via npm/yarn that allow you to easily integrate complex features, such as animations, drag-and-drops, component libraries, and more.
+
+- Learn about API integration: We saw how useEffect can make an API call to set our initial data for our components (via our json-server mock database). Take the next step and find a free API (weather APIs are a popular beginner project) and pull that data to use in your React application!
+
+
+### Quick References
+
+- [React Docs](https://reactjs.org/docs/getting-started.html)
+- [Vite Docs](https://vitejs.dev/guide/)
+- [NPM.com](https://www.npmjs.com/)
+- [Top React Libraries](https://www.robinwieruch.de/react-libraries/)
+- [Free APIs for React Projects](https://dev.to/kritika27/list-of-apis-to-use-for-creating-javascript-react-app-8m4)
+- [w3schools HTML](https://www.w3schools.com/html/)
+- [w3schools CSS](https://www.w3schools.com/css/)
